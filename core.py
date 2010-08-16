@@ -1,4 +1,3 @@
-from settings import APPS
 from time import sleep
 from threading import Thread, Event
 from random import randint
@@ -144,17 +143,17 @@ class ConnectionSet(list):
 class Checker(Thread):
     """Checks messages and passes results to associated apps."""
 
-    def __init__(self,c_set,interval):
+    def __init__(self,controller,c_set,interval):
         Thread.__init__(self)
         self.event = Event()
+        self.controller = controller
         self.connection_set = c_set
         self.interval = interval
         self.done = False
 
     def check(self):
         print "Checking %s" % self.connection_set
-        msgs = self.connection_set.get_messages()
-        print msgs
+        self.controller.control(self.connection_set.get_messages())
 
     def run(self):
         while not self.done:
@@ -168,3 +167,19 @@ class Checker(Thread):
 
     def stop(self):
         self.done = True
+
+
+class Controller(object):
+
+    def __init__(self,app_names):
+
+        self.reactions = tuple()
+        for app_name in app_names:
+            a = __import__('apps.%s' % app_name,globals(),locals(),['controller'],-1)
+            self.reactions += a.controller.reactions
+
+    def control(self,msg_set):
+        for msg in msg_set:
+            for test, response in self.reactions:
+                if test(msg):
+                    response(msg)

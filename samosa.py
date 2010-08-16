@@ -1,6 +1,6 @@
 #This is the main file that will get called to start the service
-from settings import CONNECTIONS, CHECK_INTERVAL
-from core import ConnectionSet, Checker
+from settings import CONNECTIONS, CHECK_INTERVAL, APPS
+from core import ConnectionSet, Checker, Controller
 
 def connect():
     """Connect to backends."""
@@ -14,11 +14,12 @@ def connect():
 if __name__ == "__main__":
     conns = connect()
 #    msgs = conns.get_messages()
-    checker = Checker(conns,(12,22))
+    controller = Controller(APPS)
+    checker = Checker(controller,conns,CHECK_INTERVAL)
     checker.start()
     try:
         while True:
-            todo = raw_input("Press c to check now, q to quit: ")
+            todo = raw_input("\n\n**At any time enter c to force a check, q to quit.**\n\n")
             if todo == 'c':
                 checker.check()
             elif todo == 'q':
