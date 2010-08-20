@@ -29,13 +29,13 @@ def extract_html_data(htmlsms):
     
     return msgdict
 
-def gv_convos_to_messages(voice):
+def gv_convos_to_messages(cxn):
 
     msgs = MessageSet()
 
-    gv_num = voice.settings['primaryDid']
-    convos = voice.sms().messages
-    msgdict = extract_html_data(voice.sms.html)
+    gv_num = cxn.voice.settings['primaryDid']
+    convos = cxn.voice.sms().messages
+    msgdict = extract_html_data(cxn.voice.sms.html)
 
     #extract sub-message's html data within each coversation and turn into Message instances
     for convo in convos:
@@ -70,7 +70,7 @@ def gv_convos_to_messages(voice):
                           is_read = convo.isRead, #this will make ALL sub-sub_htmls
                                                   #within a conversation unread
                                                   #which is not really ideal
-                          backend = "pygooglevoice")
+                          connection = cxn)
             msgs.append(sub)
 
     return msgs
