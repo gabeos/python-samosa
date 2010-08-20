@@ -3,17 +3,17 @@ from threading import Thread, Event
 from random import randint
 
 REQUIRED_MSG_ATTRS = (
-                'from_num',
+                'id',
+                'datetime',
+                'from_num', #optional??
                 'to_num',
-                'text',
+                'text'
                  )
     
 OPTIONAL_MSG_ATTRS = (
-                'id',
                 'labels',
-                'datetime',
                 'is_read',
-                'backend',
+                'connection'
                  )
 
 class Message(object):
@@ -35,6 +35,9 @@ class Message(object):
             
     def __repr__(self):
         return "<Message from %s to %s>" % (self.from_num, self.to_num)
+    
+    def __cmp__(self, other):
+        return cmp(self.datetime, other.datetime)
             
                 
 class MessageSet(list):
@@ -121,7 +124,7 @@ class MessageSet(list):
 
 class Connection(object):
     """Superclass for each backend's Connection object."""
-    
+    #add backend, number
     def __init__(self):
         pass
 
