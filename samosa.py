@@ -1,6 +1,8 @@
 #This is the main file that will get called to start the service
 from settings import CONNECTIONS, CHECK_INTERVAL, APPS
-from core import ConnectionSet, Checker, Controller
+from core.connection_set import ConnectionSet
+from core.checker import Checker
+from core.controller import Controller
 
 def connect():
     """Connect to backends."""

@@ -23,6 +23,13 @@ class OrderedMessageSet(collections.MutableSet):
     def __len__(self):
         return len(elements)
     
+    def send(self):
+        """Call each message's send method.
+        
+        Each message must have connection attribute set."""
+        for m in self:
+            m.send(m)
+    
     def add(self, message):
         if not isinstance(message, Message):
             raise TypeError("Item not of type Message")
@@ -52,7 +59,7 @@ class OrderedMessageSet(collections.MutableSet):
     
         #should possibly define this by using XOR with MS.filter for guaranteed consistency?
     def exclude(self,**kwargs):
-        """Returns only Messages NOT matching specified attributes
+        """Return only Messages NOT matching specified attributes
         as new MessageSet instance.
             MessageSet.exclude(attr1=val1,attr2=val2)
         is functionally equivalent to
@@ -82,7 +89,7 @@ class OrderedMessageSet(collections.MutableSet):
         return tempMS
     
     def filter(self, **kwargs):
-        """Returns only Messages matching specified attributes
+        """Return only Messages matching specified attributes
         as new MessageSet instance.
             MessageSet.filter(attr1=val1,attr2=val2)
         is functionally equivalent to

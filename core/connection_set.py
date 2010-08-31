@@ -1,6 +1,7 @@
-
+from core.message_set import MessageSet
 
 class ConnectionSet(list):
+  
     """Holds multiple connections in one contatiner and
     provides bulk access to common methods of its elements."""
 

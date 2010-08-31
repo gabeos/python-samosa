@@ -1,6 +1,7 @@
-
+from datetime import datetime
 
 REQUIRED_MSG_ATTRS = (
+                #is id necessary if we're not saving the message somewhere?
                 'id',
                 'datetime',
                 'from_num', #optional??
@@ -22,7 +23,17 @@ class Message(object):
         
         for attr in REQUIRED_MSG_ATTRS:
             if not kwargs.has_key(attr):
-                raise Exception('%s is a required attribute of Message object' % attr)
+                if attr == 'datetime':
+                    self.datetime = datetime.now()
+                    continue
+                elif attr == 'id':
+                    try:
+                        self.id = kwargs['to_num'] + '_something' #fix this
+                        continue
+                    except KeyError:
+                        raise Exception('%s is a required attribute of Message object' % attr)
+                else:
+                    raise Exception('%s is a required attribute of Message object' % attr)
             setattr(self,attr,kwargs[attr])
             del kwargs[attr]
             
@@ -36,4 +47,12 @@ class Message(object):
     
     def __cmp__(self, other):
         return cmp(self.datetime, other.datetime)
-            
+        
+    def send(self):
+        """Shortcut method for msg.connection.send(msg).
+        
+        msg.connection attribute must be set."""
+        try:
+            self.connection.send(self)
+        except AttributeError:
+            raise AttributeError('Message must have connection attribute set.')

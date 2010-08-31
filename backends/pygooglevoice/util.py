@@ -1,4 +1,5 @@
-from core import Message, MessageSet
+from core.message import Message
+from core.message_set import MessageSet
 import BeautifulSoup
 from datetime import datetime, time
 
