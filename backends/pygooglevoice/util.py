@@ -51,9 +51,13 @@ def gv_convos_to_messages(cxn):
             #get time of sub_html
             #this won't understand conversations that wrap around midnight
             #deal with that later
-            temp_sub_time = datetime.strptime(sub_html['time'],"%H:%M %p")
-            h, mi = temp_sub_time.hour, temp_sub_time.minute
-            sub_time = datetime(y,mo,d,h,mi)
+            try:
+                temp_sub_time = datetime.strptime(sub_html['time'],"%H:%M %p")
+                h, mi = temp_sub_time.hour, temp_sub_time.minute
+                sub_time = datetime(y,mo,d,h,mi)
+            #if GV appends the date to the html the above errors
+            except ValueError:
+                sub_time = datetime.strptime(sub_html['time'],"%H:%M %p  (%m/%d/%y)")
             
             if sub_html['from'] == "Me:":
                 sub_from = gv_num
