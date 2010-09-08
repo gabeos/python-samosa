@@ -20,6 +20,10 @@ class Message(object):
     from different backends."""
     
     def __init__(self,**kwargs):
+
+        #should switch other defaults to this, and then just let them
+        #be overwritten if passed as attrs
+        self.labels = []
         
         for attr in REQUIRED_MSG_ATTRS:
             if not kwargs.has_key(attr):
