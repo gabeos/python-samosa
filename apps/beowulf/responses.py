@@ -6,17 +6,17 @@ KEYWORD = "beo "
 
 def match_line(message):
     request = message.text.lower()[len(KEYWORD):].strip().splitlines()[0]
-    print "request: "+request
     matched_line = "no match!"
+    line_number = 0
     for line in open(BEOWULF_FILE):
+        line_number += 1
         if (request in line.lower()):
             matched_line = line
             break
+       
+    matched_line = "line %d: %s" % (line_number, matched_line)
     
-    #matched_line = call(['grep', message, '/Users/dadamson/lab/python-samosa/apps/beowulf/beowulf.txt'])
-    
-    print "Sending a line from Beowulf to %s" % message.from_num
-    print matched_line
+    print "Sending line %d from Beowulf to %s" % (line_number, message.from_num)
     
     m = Message(id="beowulf",to_num = message.from_num, from_num = message.to_num, text = matched_line)
     m.connection = message.connection

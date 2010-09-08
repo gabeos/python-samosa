@@ -13,14 +13,14 @@ consumed_ids = [] #messages consumed in the current minute
 
 def is_new(message):
     if message.datetime > apps.beowulf.controller.last_time:
-        print "new: %s at %s" % (message.id, message.datetime)
+        #print "new: %s at %s" % (message.id, message.datetime)
         return True;
     elif message.datetime < apps.beowulf.controller.last_time:
         return False;
     else:
-        if message.id not in apps.beowulf.controller.consumed_ids: 
-            print "new this minute: %s at %s" % (message.id, message.datetime)
-            print apps.beowulf.controller.consumed_ids
+        #if message.id not in apps.beowulf.controller.consumed_ids: 
+            #print "new this minute: %s at %s" % (message.id, message.datetime)
+            #print apps.beowulf.controller.consumed_ids
         return message.id not in apps.beowulf.controller.consumed_ids
 
 def remember(message):
