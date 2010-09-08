@@ -2,7 +2,7 @@ from core.message import Message
 
 def tell_joke(message):
     from simplejson import load
-    jokes = load(open('/home/askory/Scripts/samosa/apps/joke/jokes.json'))
+    jokes = load(open("apps/joke/jokes.json"))
     from random import choice
     joke = choice(jokes)
     print "Sending a joke to %s" % message.from_num
