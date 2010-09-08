@@ -20,5 +20,5 @@ CHECK_INTERVAL = (100,400)
 #Specify apps here, format is (app,[connection1,connection2...])
 #if no connections are listed, all connections will be checked by default
 APPS = (
-         ('beowulf'),  ('joke'),
+         ('beowulf'), # ('joke'),
        )

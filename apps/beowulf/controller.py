@@ -8,18 +8,18 @@ from datetime import datetime, date, time
 #and perform arbitary evaluations, returning True or False
 #(returning None is also evaluated as False)
 
-last_time = datetime.now() #the last timestamp we read - only precise to the minute
+last_time = datetime.now().replace(second=0, microsecond=0) #the last timestamp we read - only precise to the minute
 consumed_ids = [] #messages consumed in the current minute
 
 def is_new(message):
     if message.datetime > apps.beowulf.controller.last_time:
-        print "new: "+message.id
+        print "new: %s at %s" % (message.id, message.datetime)
         return True;
     elif message.datetime < apps.beowulf.controller.last_time:
         return False;
     else:
         if message.id not in apps.beowulf.controller.consumed_ids: 
-            print "new this minute: "+message.id
+            print "new this minute: %s at %s" % (message.id, message.datetime)
             print apps.beowulf.controller.consumed_ids
         return message.id not in apps.beowulf.controller.consumed_ids
 
