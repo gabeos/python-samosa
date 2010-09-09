@@ -1,4 +1,5 @@
 import apps.joke.responses
+from util.models import Log
 
 #define the app's behavior in the form of test / response pairs
 
@@ -8,7 +9,7 @@ import apps.joke.responses
 #(returning None is also evaluated as False)
 
 def is_joke(message):
-    if "#joke" in message.text.lower() and not message.is_read:
+    if "#joke" in message.text.lower() and not Log.objects.filter(m_id=message.id):
         return True
 
 
