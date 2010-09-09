@@ -6,15 +6,12 @@ KEYWORD = "beo "
 
 def match_line(message):
     request = message.text.lower()[len(KEYWORD):].strip().splitlines()[0]
-    matched_line = "no match!"
-    line_number = 0
-    for line in open(BEOWULF_FILE):
-        line_number += 1
-        if (request in line.lower()):
-            matched_line = line
-            break
-       
-    matched_line = "line %d: %s" % (line_number, matched_line)
+    matches = [(i+1,line) for (i,line) in enumerate(open(BEOWULF_FILE))
+                                                if request in line.lower()]
+    if matches:
+        matched_line = "line %d: %s" % matches[0]
+    else:
+        matched_line = "no match!"
     
     print "Sending line %d from Beowulf to %s" % (line_number, message.from_num)
     
