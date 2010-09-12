@@ -32,4 +32,3 @@ class Log(ME.Document):
 
     def __repr__(self):
         return "<Message from %s to %s>" % (self.from_num, self.to_num)
-
