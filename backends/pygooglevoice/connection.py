@@ -18,8 +18,6 @@ class Connection(SuperConn):
         
         self.voice.send_sms(msg.to_num,msg.text)
         
-        
-    
     def __init__(self,cid,**creds):
         """Connection to Google Voice.
         optional keyword args:

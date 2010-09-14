@@ -14,7 +14,7 @@ def unread(message):
     return not Log.objects(m_id=message.id) and message.from_num != message.connection.num
 
 def join(message):
-    return "#join#" in message.text.lower() and unread(message)
+    return "surfer join" in message.text.lower() and unread(message)
 
 def is_subscribed(message):
     return bool(Phone.objects(number=message.from_num,subscribed=True))
@@ -26,28 +26,28 @@ def already_subscribed(message):
     return join(message) and unread(message) and is_subscribed(message)
 
 def unsubscribe(message):
-    return "#unsubscribe#" in message.text.lower() and (unread(message) and is_subscribed(message))
+    return "surfer leave" in message.text.lower() and (unread(message) and is_subscribed(message))
 
 def announce(message):
-    return bool(re.search(r'#announce[ _\-#]?this#',message.text.lower(), re.I)) and unread(message)    
+    return "surfer announce" in message.text.lower() and unread(message)    
 
 def is_expert(message):
     return bool(Phone.objects(number=message.from_num,expert=True))
 
 def register_expert(message):
-    return "#register expert#" in message.text.lower() and (unread(message) and not is_expert(message))
+    return "surfer expert join" in message.text.lower() and (unread(message) and not is_expert(message))
 
 def already_expert(message):
-    return "#register expert#" in message.text.lower() and (unread(message) and is_expert(message))
+    return "surfer expert join" in message.text.lower() and (unread(message) and is_expert(message))
 
 def unregister_expert(message):
-    return "#unregister expert#" in message.text.lower() and (unread(message) and is_expert(message))
+    return "surfer expert leave" in message.text.lower() and (unread(message) and is_expert(message))
 
 def ask_question(message):
-    return "#ask#" in message.text.lower() and unread(message)
+    return "surfer question" in message.text.lower() and unread(message)
 
 def answer_question(message):
-    return "#answer#" in message.text.lower() and unread(message)
+    return "surfer answer" in message.text.lower() and unread(message)
 
 #Here associate tests with responses
 reactions = (
