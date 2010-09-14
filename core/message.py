@@ -32,7 +32,7 @@ class Message(object):
                     continue
                 elif attr == 'id':
                     try:
-                        self.id = kwargs['to_num'] + '_something' #fix this
+                        self.id = kwargs['to_num'] + str(datetime.now().microsecond)
                         continue
                     except KeyError:
                         raise Exception('%s is a required attribute of Message object' % attr)
