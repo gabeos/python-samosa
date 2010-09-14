@@ -20,16 +20,34 @@ def is_subscribed(message):
     return bool(Phone.objects(number=message.from_num,subscribed=True))
 
 def subscribe(message):
-    return join(message) and not is_subscribed(message)
+    return join(message) and unread(message) and not is_subscribed(message)
 
 def already_subscribed(message):
-    return join(message) and is_subscribed(message)
+    return join(message) and unread(message) and is_subscribed(message)
 
 def unsubscribe(message):
     return "#unsubscribe#" in message.text.lower() and (unread(message) and is_subscribed(message))
 
 def announce(message):
-    return bool(re.search(r'#announce[ _\-#]?this#',message.text.lower())) and unread(message)    
+    return bool(re.search(r'#announce[ _\-#]?this#',message.text.lower(), re.I)) and unread(message)    
+
+def is_expert(message):
+    return bool(Phone.objects(number=message.from_num,expert=True))
+
+def register_expert(message):
+    return "#register expert#" in message.text.lower() and (unread(message) and not is_expert(message))
+
+def already_expert(message):
+    return "#register expert#" in message.text.lower() and (unread(message) and is_expert(message))
+
+def unregister_expert(message):
+    return "#unregister expert#" in message.text.lower() and (unread(message) and is_expert(message))
+
+def ask_question(message):
+    return "#ask#" in message.text.lower() and unread(message)
+
+def answer_question(message):
+    return "#answer#" in message.text.lower() and unread(message)
 
 #Here associate tests with responses
 reactions = (
@@ -37,4 +55,9 @@ reactions = (
                 (already_subscribed, apps.weekender.responses.already_subscribed),
                 (unsubscribe, apps.weekender.responses.unsubscribe),
                 (announce, apps.weekender.responses.announce),
+                (register_expert, apps.weekender.responses.register_expert),
+                (already_expert, apps.weekender.responses.already_expert),
+                (unregister_expert, apps.weekender.responses.unregister_expert),
+                (ask_question, apps.weekender.responses.ask_question),
+                (answer_question, apps.weekender.responses.answer_question)
             )
