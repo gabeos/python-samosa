@@ -1,19 +1,13 @@
 from core.message import Message
 from core.message_set import MessageSet
 from apps.basic_game.models import *
+from apps.basic_game.game_data import GAME, MESSAGES
 from util.models import Log
 import re
 
-GAME = "grove "
 
 Team.objects.get_or_create(name="admin").save()
 Team.objects.get_or_create(name="npc").save()
-
-MESSAGES = {
-        'end': 'Meet at location X, Y',
-        'foo': 'Blah',
-        'panic' : 'Run awaaaaay!'
-        }
 
 def join(message):
     team = message.text[len(GAME+"join"):].split()[0].lower()
@@ -35,8 +29,10 @@ def join(message):
         message.connection.send(reply)
 
 def list_teams(message):
-    team_names = ", ".join([t.name for t in Team.objects(name__nin["admin","npc"])])
+    team_names = ", ".join([t.name for t in Team.objects(name__nin=["admin","npc"])])
     reply = Message(to_num = message.from_num, from_num = message.to_num, text = "That wasn't a valid team. The following player teams are available: %s" % team_names)
+
+    print "%s gave an invalid team" % message.from_num
 
     Log(message).save()
     Log(reply).save()
@@ -65,8 +61,10 @@ def leave(message):
     Log(reply).save()
     message.connection.send(reply)
 
-def not_subscribed(message):
+def not_joined(message):
     reply = Message(to_num = message.from_num, from_num = message.to_num, text = "You are not in the game! To join, text '%sjoin TEAM' to %s." % (GAME, message.to_num))
+
+    print "%s is not in the game yet, but sent a game message." % (message.from_num, message.text)
 
     Log(reply).save()
     Log(message).save()
@@ -77,7 +75,7 @@ def announce(message):
 
     sender = Phone.objects(number=message.from_num)
     if not sender:
-        not_subscribed(message)
+        not_joined(message)
                 
     else:
         phones = Phone.objects()
@@ -89,9 +87,9 @@ def announce(message):
         print "%s sending announcement \"%s\"" % (message.from_num, text)
         
         for phone in phones:
-            announce = Message(to_num = phone.number, from_num = message.to_num, text = "To all: "+text)
-            Log(announce).save()
-            message.connection.send(announce)
+            tell = Message(to_num = phone.number, from_num = message.to_num, text = "To all: "+text)
+            Log(tell).save()
+            message.connection.send(tell)
     
         #reply = Message(to_num = message.from_num, from_num = message.to_num, text = "Your announcement has been sent.")
         #Log(reply).save()
@@ -101,10 +99,16 @@ def announce(message):
 def team_msg(message):
     team_name = message.text[len(GAME+"tell"):].split()[0].lower()
     
-
     sender = Phone.objects(number=message.from_num)
     if not sender:
-        not_subscribed(message)
+        not_joined(message)
+        
+    elif team_name=="all":
+        announce(message)
+        
+    elif not Team.objects(name=team_name):
+        list_teams(message)
+    
     else:
         phones = Phone.objects(team=team_name)
        
@@ -114,9 +118,9 @@ def team_msg(message):
         print "%s tells %s: %s" % (message.from_num, team_name, text)
         
         for phone in phones:
-            announce = Message(to_num = phone.number, from_num = message.to_num, text = "Team %s: %s" % (team_name, text))
-            Log(announce).save()
-            message.connection.send(announce)
+            tell = Message(to_num = phone.number, from_num = message.to_num, text = "Team %s: %s" % (team_name, text))
+            Log(tell).save()
+            message.connection.send(tell)
     
         reply = Message(to_num = message.from_num, from_num = message.to_num, text = "Your message has been sent to team %s." % team_name)
         Log(reply).save()
