@@ -1,0 +1,50 @@
+all are prefixed commands with the game name, currently "grove ".
+
+text to 412-353-9853 (David's Google Voice #)
+
+available commands:
+
+grove join TEAM
+    associates the sender's number with a team.
+    team can be "admin", "npc",
+    or one of the player teams (eg "red", "blue")
+    currently no magic is in place to prevent anyone from joining
+    npc or admin, but this is probably okay.
+    
+grove leave
+    drops the sender from the game.
+    (to switch teams, leave and then join another team)
+    
+grove set teams TEAM1 TEAM2...
+    available only to admins. 
+    deletes existing player teams and players (not npcs or admins)
+    creates new player teams as given.
+    
+grove reset
+    available only to admins.
+    resets player team scores (leaves empty teams in place), 
+    deletes players and npcs (not admins)
+        
+grove clear
+    available only to admins.
+    resets player team scores (leaves all players subscribed)
+    
+grove announce MESSAGE
+    looks up MESSAGE as key in MESSAGES dictionary
+    gets associated value if present, or MESSAGE otherwise,
+    and sends it to all players.
+    
+grove tell TEAM MESSAGE
+    looks up MESSAGE as key in MESSAGES dictionary
+    gets associated value if present, or MESSAGE otherwise,
+    and sends it to all players on TEAM.
+    
+grove score TEAM
+    available to npcs and admins
+    adds a point to TEAM's score 
+    and sends a status update to all players. 
+    (do you want this notification?)
+    
+grove status
+    sends all team's scores to the sender.
+    

@@ -1,7 +1,7 @@
 from core.message import Message
 from core.message_set import MessageSet
 import BeautifulSoup
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 
 def extract_html_data(htmlsms):
     """
@@ -55,7 +55,14 @@ def gv_convos_to_messages(cxn):
             try:
                 temp_sub_time = datetime.strptime(sub_html['time'],"%I:%M %p")
                 h, mi = temp_sub_time.hour, temp_sub_time.minute
+                
                 sub_time = datetime(y,mo,d,h,mi)
+                
+                #watch out for midnight rollover!
+                if sub_time > (datetime.now()+timedelta(minutes=2)):
+                    print "time was %s"
+                    sub_time = sub_time - timedelta(days=1)
+                
             #if GV appends the date to the html the above errors
             except ValueError:
                 sub_time = datetime.strptime(sub_html['time'],"%I:%M %p  (%m/%d/%y)")

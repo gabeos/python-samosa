@@ -96,6 +96,7 @@ import wave
 
 from operator import and_
 import Skype4Py
+import threading
 
 #
 # Logging/tracing support
@@ -506,17 +507,25 @@ class WakeupCall(SkypeCaller):
         finally:
             self.setting_sound = False
 
-#target_list is a list of phone numbers in +14125551234 form
-#wav_list is a list of paths to WAV audio files to be played in sequence.
-#wait_sound is an optional wav file path that will play while some targets are pending.
+def dummy():
+    print("*starting dummy thread %s" % threading.current_thread())
+    time.sleep(10.0)
+    print("*done with dummy thread %s" % threading.current_thread())
+
+def call_all_thread(target_list, wav_list, wait_sound=None):
+    #threading.Thread(target=dummy).start()
+    threading.Thread(target=call_all, args=(target_list, wav_list, wait_sound)).start()
+
 def call_all(target_list, wav_list, wait_sound=None):
     """
     target_list is a list of phone numbers in +14125551234 form
     wav_list is a list of paths to WAV audio files to be played in sequence.
     all targets will be conferenced, and will hear the audio simultaneously.
     """
-    #I think it's okay to setup skype more than once.
+    #setup_skype is conditioned not to run more than once.
     setup_skype()
+    
+    print "call %s" % target_list
     
     for target in target_list:
         # Raw phone numbers are ok.
@@ -545,8 +554,9 @@ def call_all(target_list, wav_list, wait_sound=None):
     
     # Instantiate an AutoCaller.
     wc = WakeupCall(target_list, wav_list)
-    wc.wait_sound = os.path.abspath(wait_sound)
-
+    if(wait_sound):
+        wc.wait_sound = os.path.abspath(wait_sound)
+        
     #this is a stupid way to queue. should spawn a thread?
     global queued_callers
 

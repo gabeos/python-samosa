@@ -11,7 +11,7 @@ import mongoengine as ME
 
 def is_new(message):
     ME.connect("group_demo")
-    return not message.is_read and not Log.objects.filter(m_id=message.id)
+    return (not message.is_read) and (not Log.objects.filter(m_id=message.id))
 
 def is_group_call_request(message):
     if (message.text.lower().startswith(KEYWORD) and is_new(message)):
