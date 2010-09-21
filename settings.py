@@ -15,7 +15,7 @@ CONNECTIONS = (
 #Set the interval to ping each connection for new Messages
 #format is an integer in seconds, or a tuple specifying a range
 #from which to wait a random number of seconds each time
-CHECK_INTERVAL = (10, 25)
+CHECK_INTERVAL = (20, 60)
 
 #Specify apps here, format is (app,[connection1,connection2...])
 #if no connections are listed, all connections will be checked by default
