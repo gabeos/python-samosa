@@ -60,7 +60,6 @@ def gv_convos_to_messages(cxn):
                 
                 #watch out for midnight rollover!
                 if sub_time > (datetime.now()+timedelta(minutes=2)):
-                    print "time was %s"
                     sub_time = sub_time - timedelta(days=1)
                 
             #if GV appends the date to the html the above errors
