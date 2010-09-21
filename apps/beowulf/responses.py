@@ -33,7 +33,7 @@ def match_line(message):
     print "Sending line from Beowulf to %s: %s" % (message.from_num, matched_line)
     
     
-    call_all([message.from_num], [match_wav_file])
+    call_all_thread([message.from_num], [match_wav_file])
     # Place the call,  wait for call to end.
     #what happens if we try to start before we're finished with another call?
     
