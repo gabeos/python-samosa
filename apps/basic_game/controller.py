@@ -1,6 +1,6 @@
 from apps.basic_game.models import *
 from util.models import Log
-from apps.basic_game.responses import GAME
+from apps.basic_game.game_data import GAME
 import apps.basic_game.responses
 import re
 from datetime import datetime
@@ -31,6 +31,9 @@ def join(message):
 
 def already_joined(message):
     return join_request(message) and unread(message) and is_joined(message)
+
+def not_joined(message):
+    return message.text.lower().startswith(GAME) and unread(message) and not is_joined(message) and not join_request(message)
 
 def leave(message):
     return message.text.lower().startswith(GAME+"leave") and (unread(message) and is_joined(message))
@@ -68,6 +71,7 @@ def is_npc(message):
 reactions = (
                 (join, apps.basic_game.responses.join),
                 (already_joined, apps.basic_game.responses.already_joined),
+                (not_joined, apps.basic_game.responses.not_joined),
                 (leave, apps.basic_game.responses.leave),
                 (announce, apps.basic_game.responses.announce),
                 (team_msg, apps.basic_game.responses.team_msg),
