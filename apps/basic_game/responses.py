@@ -12,7 +12,7 @@ Team.objects.get_or_create(name="npc").save()
 MESSAGES = {
         'end': 'Meet at location X, Y',
         'foo': 'Blah',
-        'panic' : 'run awaaaaay!'
+        'panic' : 'Run awaaaaay!'
         }
 
 def join(message):
@@ -66,7 +66,7 @@ def leave(message):
     message.connection.send(reply)
 
 def not_subscribed(message):
-    reply = Message(to_num = message.from_num, from_num = message.to_num, text = "you are not in the game! To join, text '%sjoin TEAM' to %s." % (GAME, message.to_num))
+    reply = Message(to_num = message.from_num, from_num = message.to_num, text = "You are not in the game! To join, text '%sjoin TEAM' to %s." % (GAME, message.to_num))
 
     Log(reply).save()
     Log(message).save()
@@ -89,15 +89,14 @@ def announce(message):
         print "%s sending announcement \"%s\"" % (message.from_num, text)
         
         for phone in phones:
-            announce = Message(to_num = phone.number, from_num = message.to_num, text = text)
+            announce = Message(to_num = phone.number, from_num = message.to_num, text = "To all: "+text)
             Log(announce).save()
             message.connection.send(announce)
     
-        reply = Message(to_num = message.from_num, from_num = message.to_num, text = "Your announcement has been sent.")
-
-        Log(reply).save()
+        #reply = Message(to_num = message.from_num, from_num = message.to_num, text = "Your announcement has been sent.")
+        #Log(reply).save()
+        #message.connection.send(reply)
         Log(message).save()
-        message.connection.send(reply)
 
 def team_msg(message):
     team_name = message.text[len(GAME+"tell"):].split()[0].lower()
@@ -115,12 +114,11 @@ def team_msg(message):
         print "%s tells %s: %s" % (message.from_num, team_name, text)
         
         for phone in phones:
-            announce = Message(to_num = phone.number, from_num = message.to_num, text = "team %s: %s" % (team_name, text))
+            announce = Message(to_num = phone.number, from_num = message.to_num, text = "Team %s: %s" % (team_name, text))
             Log(announce).save()
             message.connection.send(announce)
     
         reply = Message(to_num = message.from_num, from_num = message.to_num, text = "Your message has been sent to team %s." % team_name)
-
         Log(reply).save()
         Log(message).save()
         message.connection.send(reply)
@@ -156,7 +154,7 @@ def reset(message):
     for phone in phones:
         phone.delete()
         
-    reply = Message(to_num = message.from_num, from_num = message.to_num, text = "scores and all non-admin players have been reset for all teams: %s" % ", ".join([t.name for t in teams]))
+    reply = Message(to_num = message.from_num, from_num = message.to_num, text = "Scores and all non-admin players have been reset for all teams: %s" % ", ".join([t.name for t in teams]))
 
     Log(reply).save()
     Log(message).save()
@@ -180,11 +178,11 @@ def announce_status(message, text):
     scores = ", ".join(["%s: %d" % (t.name, t.score) for t in Team.objects(name__nin=["admin", "npc"])])
     
     for phone in Phone.objects:
-        reply = Message(to_num = phone.number, from_num = message.to_num, text = "%s\nCurrent Scores: %s" % (text, scores))
-    
-        Log(reply).save()
-        Log(message).save()
-        message.connection.send(reply)
+        announce = Message(to_num = phone.number, from_num = message.to_num, text = "%s\nCurrent Scores: %s" % (text, scores))
+        Log(announce).save()
+        message.connection.send(announce)
+        
+    Log(message).save()
 
 def clear_scores(message):
     teams = Team.objects(name__nin=["admin", "npc"])
@@ -193,14 +191,15 @@ def clear_scores(message):
         team.score = 0;
         team.save()
         
-    reply = Message(to_num = message.from_num, from_num = message.to_num, text = "scores have been reset for teams %s. All participants are still in the game" % ", ".join([t.name for t in teams]))
-
+    reply = Message(to_num = message.from_num, from_num = message.to_num, text = "Scores have been reset for teams %s. All participants are still in the game" % ", ".join([t.name for t in teams]))
     Log(reply).save()
     Log(message).save()
     message.connection.send(reply)
         
 
-#score++ for team
+#score++ for team 
+#(note to self: make sure the message gets saved in the Log
+# either directly or by delegation (now in list_teams, announce_status))
 def score(message):
     team_name = message.text[len(GAME+"score"):].split()[0].lower()
     
@@ -212,6 +211,7 @@ def score(message):
         team.score += 1
         team.save()
         print "%s was awarded a point by %s" % (team.name, message.from_num)
-        announce_status(message, "team %s has scored!" % team.name)
+        announce_status(message, "Team %s has scored!" % team.name)
+        
      
    
