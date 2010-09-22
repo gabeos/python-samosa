@@ -17,7 +17,7 @@ from datetime import datetime
 start_time = datetime.now().replace(second=0) 
 
 def unread(message):
-    return not Log.objects(m_id=message.id) and message.from_num != message.connection.num and message.datetime >= start_time
+    return not Log.objects(m_id=message.id) and message.from_num != message.connection.num and message.datetime >= start_time and not message.is_read
 
 #anyone can join team admin or team npc, if they're evil.
 def join_request(message):
@@ -33,10 +33,11 @@ def already_joined(message):
     return join_request(message) and unread(message) and is_joined(message)
 
 def not_joined(message):
-    return message.text.lower().startswith(GAME) and unread(message) and not is_joined(message) and not join_request(message)
+    return (not is_joined(message)) and (not join_request(message)) and message.text.lower().startswith(GAME) and unread(message)
 
 def leave(message):
     return message.text.lower().startswith(GAME+"leave") and (unread(message) and is_joined(message))
+    
 
 #currently, any player can send announcements or team messages.
 #maybe only allow a player to send to their team? or not at all?

@@ -3,6 +3,7 @@ from threading import Thread, Event
 from random import randint
 from datetime import datetime
 import sys
+import traceback
 
 class Checker(Thread):
     """Checks messages and passes results to associated apps."""
@@ -27,6 +28,7 @@ class Checker(Thread):
                 self.check()
             except Exception:
                 print "Error: ", sys.exc_info()[0]
+                traceback.print_exc()
                 print "ignoring exception and continuing checker"
             #if interval is a tuple, take that as a range from which
             #to pick a random wait time
