@@ -64,7 +64,7 @@ def leave(message):
 def not_joined(message):
     reply = Message(to_num = message.from_num, from_num = message.to_num, text = "You are not in the game! To join, text '%sjoin TEAM' to %s." % (GAME, message.to_num))
 
-    print "%s is not in the game yet, but sent a game message." % (message.from_num, message.text)
+    print "%s is not in the game yet, but sent a game message." % message.from_num
 
     Log(reply).save()
     Log(message).save()
@@ -84,6 +84,7 @@ def announce(message):
         text = MESSAGES.get(text.lower(), text)
         #text = re.sub(r'announce', "admin:", message.text.lower().strip(), re.I)
         
+        Log(message).save()
         print "%s sending announcement \"%s\"" % (message.from_num, text)
         
         for phone in phones:
@@ -94,7 +95,6 @@ def announce(message):
         #reply = Message(to_num = message.from_num, from_num = message.to_num, text = "Your announcement has been sent.")
         #Log(reply).save()
         #message.connection.send(reply)
-        Log(message).save()
 
 def team_msg(message):
     team_name = message.text[len(GAME+"tell"):].split()[0].lower()
@@ -117,6 +117,7 @@ def team_msg(message):
         
         print "%s tells %s: %s" % (message.from_num, team_name, text)
         
+        Log(message).save()
         for phone in phones:
             tell = Message(to_num = phone.number, from_num = message.to_num, text = "Team %s: %s" % (team_name, text))
             Log(tell).save()
@@ -124,7 +125,6 @@ def team_msg(message):
     
         reply = Message(to_num = message.from_num, from_num = message.to_num, text = "Your message has been sent to team %s." % team_name)
         Log(reply).save()
-        Log(message).save()
         message.connection.send(reply)
 
 #redefine available player teams
@@ -169,7 +169,7 @@ def status(message):
     scores = ", ".join(["%s: %d" % (t.name, t.score) for t in Team.objects(name__nin=["admin", "npc"])])
     
     #print "all participants: %s\nall teams:%s" % (", ".join(["%s on %s" % (p.number, p.team) for p in Phone.objects()]), ", ".join(["%s has %s points" % (t.name, t.score) for t in Team.objects()]))
-    print "sending status to %s", message.from_num
+    print "sending status to %s" % message.from_num
     
     reply = Message(to_num = message.from_num, from_num = message.to_num, text = "Current Scores: %s" % scores)
 
@@ -181,12 +181,13 @@ def status(message):
 def announce_status(message, text):
     scores = ", ".join(["%s: %d" % (t.name, t.score) for t in Team.objects(name__nin=["admin", "npc"])])
     
+    Log(message).save()
+    
     for phone in Phone.objects:
         announce = Message(to_num = phone.number, from_num = message.to_num, text = "%s\nCurrent Scores: %s" % (text, scores))
         Log(announce).save()
         message.connection.send(announce)
         
-    Log(message).save()
 
 def clear_scores(message):
     teams = Team.objects(name__nin=["admin", "npc"])

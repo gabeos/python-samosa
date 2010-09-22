@@ -22,12 +22,12 @@ class Checker(Thread):
 
     def run(self):
         while not self.done:
-            self.check()
-#            try:
-#                self.check()
-#            except Exception:
-#                print "Error: ", sys.exc_info()[0]
-#                print "ignoring exception and continuing checker"
+#            self.check()
+            try:
+                self.check()
+            except Exception:
+                print "Error: ", sys.exc_info()[0]
+                print "ignoring exception and continuing checker"
             #if interval is a tuple, take that as a range from which
             #to pick a random wait time
             if isinstance(self.interval,tuple):
