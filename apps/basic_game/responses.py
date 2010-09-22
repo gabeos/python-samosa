@@ -98,12 +98,14 @@ def announce(message):
 
 def team_msg(message):
     team_name = message.text[len(GAME+"tell"):].split()[0].lower()
+    text = re.sub(GAME+"(?i)tell (\w+)", "", message.text, re.I).strip()
     
     sender = Phone.objects(number=message.from_num)
     if not sender:
         not_joined(message)
         
     elif team_name=="all":
+        message.text = GAME+"announce"+text
         announce(message)
         
     elif not Team.objects(name=team_name):
@@ -112,7 +114,6 @@ def team_msg(message):
     else:
         phones = Phone.objects(team=team_name)
        
-        text = re.sub(GAME+"tell (\w+)","", message.text, re.I).strip()
         text = MESSAGES.get(text.lower(), text)
         
         print "%s tells %s: %s" % (message.from_num, team_name, text)
@@ -195,10 +196,10 @@ def clear_scores(message):
     for team in teams:
         team.score = 0;
         team.save()
-        
+      
+    Log(message).save()  
     reply = Message(to_num = message.from_num, from_num = message.to_num, text = "Scores have been reset for teams %s. All participants are still in the game" % ", ".join([t.name for t in teams]))
     Log(reply).save()
-    Log(message).save()
     message.connection.send(reply)
         
 
@@ -206,17 +207,30 @@ def clear_scores(message):
 #(note to self: make sure the message gets saved in the Log
 # either directly or by delegation (now in list_teams, announce_status))
 def score(message):
-    team_name = message.text[len(GAME+"score"):].split()[0].lower()
+    words = message.text[len(GAME+"score"):].split()
+    team_name = words[0].lower()
     
     teams = Team.objects(name=team_name)
     if not teams:
         list_teams(message)
     else:
         team = teams[0]
-        team.score += 1
-        team.save()
-        print "%s was awarded a point by %s" % (team.name, message.from_num)
-        announce_status(message, "Team %s has scored!" % team.name)
+        print words
+        if len(words) > 1 and re.match("\d+$", words[1]):
+            team.score = int(words[1])
+            team.save()
+            print "%s had their score set to %s by %s" % (team_name, words[1], message.from_num)
+            
+            reply = Message(to_num = message.from_num, from_num = message.to_num, text = "Team %s has had their score set to %s" % (team_name, words[1]))
+            Log(reply).save()
+            message.connection.send(reply)
+            
+        else:
+            team.score += 1
+            team.save()
+            print "%s was awarded a point by %s" % (team.name, message.from_num)
+            announce_status(message, "Team %s has scored!" % team.name)
+            
         
      
    
