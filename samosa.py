@@ -19,8 +19,6 @@ if __name__ == "__main__":
     if len(argv) > 1:
         alt_settings = __import__(argv[1],globals(),locals(),['CONNECTIONS', 'CHECK_INTERVAL', 'APPS'],-1)
         CONNECTIONS, CHECK_INTERVAL, APPS = alt_settings.CONNECTIONS, alt_settings.CHECK_INTERVAL, alt_settings.APPS    
-        import pdb
-        pdb.set_trace()
 
     conns = connect()
 #    msgs = conns.get_messages()
