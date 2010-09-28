@@ -142,7 +142,7 @@ def answer_question(message):
     asker = Phone.objects(subscribed=True, number__endswith=number_code)
     if not asker:
         #send incorrect code msg
-        incorrect_code_message = Message(from_num=message.to_num, to_num=message.from_num, text="I'm sorry, no subscriber could be found with phone number ending in %s. Please check your digits and try again with format 'surfer answer <shortcode> <answer>'" % number_code
+        incorrect_code_message = Message(from_num=message.to_num, to_num=message.from_num, text="I'm sorry, no subscriber could be found with phone number ending in %s. Please check your digits and try again with format 'surfer answer <shortcode> <answer>'" % number_code)
         Log(incorrect_code_message).save()
         message.connection.send(incorrect_code_message)
     
