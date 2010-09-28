@@ -1,8 +1,9 @@
 #This is the main file that will get called to start the service
-from settings import CONNECTIONS, CHECK_INTERVAL, APPS
 from core.connection_set import ConnectionSet
 from core.checker import Checker
 from core.controller import Controller
+from sys import argv
+from settings import CONNECTIONS, CHECK_INTERVAL, APPS
 
 def connect():
     """Connect to backends."""
@@ -14,6 +15,13 @@ def connect():
         
     
 if __name__ == "__main__":
+
+    if len(argv) > 1:
+        alt_settings = __import__(argv[1],globals(),locals(),['CONNECTIONS', 'CHECK_INTERVAL', 'APPS'],-1)
+        CONNECTIONS, CHECK_INTERVAL, APPS = alt_settings.CONNECTIONS, alt_settings.CHECK_INTERVAL, alt_settings.APPS    
+        import pdb
+        pdb.set_trace()
+
     conns = connect()
 #    msgs = conns.get_messages()
     controller = Controller(APPS)
