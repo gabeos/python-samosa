@@ -115,11 +115,12 @@ def ask_question(message):
     if not sender:
         subscribe(message) #this creates duplicate log entries
 
-    qstn_text = re.sub(r'surfer question', "WKND_QSTN " + get_short_code(message.from_num) + ":", message.text, re.I)
+    from apps.weekender.controller import question_re
+    qstn_text = question_re.sub("WKND_QSTN" + get_short_code(message.from_num) + ":", message.text)
 
     Log(message).save()
 
-    push_to_experts(qstn_text, (message.from_num,))
+    push_to_experts(message, qstn_text, message.to_num, [message.from_num])
 
     reply = Message(from_num=message.to_num, to_num=message.from_num, text="Your question has been distributed. Hopefully one of the local experts will get back to you soon!")
 
@@ -131,33 +132,39 @@ def answer_question(message):
     if answer_match:
         number_code = answer_match.group(1)
         answer_text = answer_match.group(2)
-    
     else:
         incorrect_format_message = Message(from_num=message.to_num, to_num=message.from_num, text="I'm sorry, I could not understand your text. Remember to use the format 'surfer answer <shortcode> <answer>'")
         Log(incorrect_format_message).save()
         message.connection.send(incorrect_format_message)
+    print "%s is answering the question asked by %s" % (message.from_num, number_code)
 
-    print "%s in answering the question asked by %s" % (message.from_num, number_code)
+    askers = Phone.objects(subscribed=True, number__endswith=number_code)
 
-    asker = Phone.objects(subscribed=True, number__endswith=number_code)
-    if not asker:
+    if not askers:
         #send incorrect code msg
         incorrect_code_message = Message(from_num=message.to_num, to_num=message.from_num, text="I'm sorry, no subscriber could be found with phone number ending in %s. Please check your digits and try again with format 'surfer answer <shortcode> <answer>'" % number_code)
         Log(incorrect_code_message).save()
         message.connection.send(incorrect_code_message)
-    
+
+    elif askers.count() > 1:
+        #send too many code msg
+        toomany_code_message = Message(from_num=message.to_num, to_num=message.from_num, text="I'm sorry, I found more than one phone number ending in %s. Please use more digits from the number (without any spaces dashes or dots) and try again with format 'surfer answer <shortcode> <answer>'" % number_code)
+        Log(toomany_code_message).save()
+        message.connection.send(toomany_code_message)
+
     else:
-        answer_message = Message(from_num=message.to_num, to_num=asker.number, text = "ANSWER: " + answer_text)
+        answer_message = Message(from_num=message.to_num, to_num=askers.first().number, text = "ANSWER: " + answer_text)
         Log(answer_message).save()
         message.connection.send(answer_message)
-        push_to_experts("ANSWER:" + answer_text, (message.from_num,))
+        push_to_experts(message, "ANSWER:" + answer_text, message.to_num, [message.from_num])
+    Log(message).save()
 
-def push_to_experts(text, exceptions=None):
+def push_to_experts(message, qstn_text, from_num, exceptions=[]):
     """Sends message containing 'text' to all experts except those listed in exceptions"""
     
     experts = Phone.objects(expert=True,number__nin=exceptions)
     for expert in experts:
-        qstn_message = Message(to_num=expert.number, from_num=message.to_num, text = qstn_text)
+        qstn_message = Message(to_num=expert.number, from_num=from_num, text= qstn_text)
 
         Log(qstn_message).save()
         message.connection.send(qstn_message)
