@@ -1,9 +1,9 @@
 #Specify connections here, format is (id,backend,[kwargs])
 CONNECTIONS = (
                  (
-                    'askory@andrew',
+                    'doctor.hrothgar@gmail',
                     'pygooglevoice',
-                    {'GV_USER':"askory@andrew.cmu.edu",'GV_PASSWORD':None}
+                    {'GV_USER':"doctor.hrothgar@gmail.com",'GV_PASSWORD':None}
                  ),
               )
 

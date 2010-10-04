@@ -3,6 +3,7 @@ from core.message_set import MessageSet
 from apps.weekender.models import *
 from util.models import Log
 import re
+import time
 
 def subscribe(message):
     print "Subscribing %s" % message.from_num
@@ -40,6 +41,17 @@ def unsubscribe(message):
     message.connection.send(reply)
 
 def announce(message):
+
+    #logging here -  better to not send at all then to over-send
+    Log(message).save()
+    reply = Message(to_num = message.from_num, from_num = message.to_num, text = "Your announcement has been sent.")
+
+    Log(reply).save()
+    try:
+	    message.connection.send(reply)
+    except:
+	    print "there was an error sending a response to %s" % message.from_num
+
     print "%s sending announcement \"%s\"" % (message.from_num, message.text[15:])
 
     sender = Phone.objects(subscribed=True,number=message.from_num)
@@ -52,14 +64,13 @@ def announce(message):
     for phone in phones:
         announce = Message(to_num = phone.number, from_num = message.to_num, text = text)
         Log(announce).save()
-        message.connection.send(announce)
+	try:
+        	message.connection.send(announce)
+        	
+	except:
+		print "error in sending announcement: %s to %s" % (message, phone.number)
 
-    reply = Message(to_num = message.from_num, from_num = message.to_num, text = "Your announcement has been sent.")
-
-    Log(reply).save()
-    Log(message).save()
-    message.connection.send(reply)
-
+	time.sleep(2.0)
 
 def register_expert(message):
     
@@ -109,11 +120,11 @@ def unregister_expert(message):
 
 def ask_question(message):
 
+    Log(message).save()
+
     print "%s is asking the question: \"%s\"" % (message.from_num, message.text[15:])
 
-    sender = Phone.objects(subscribed=True,number=message.from_num)
-    if not sender:
-        subscribe(message) #this creates duplicate log entries
+    sender = Phone.objects.get_or_create(number=message.from_num)
 
     from apps.weekender.controller import question_re
     qstn_text = question_re.sub("WKND_QSTN" + get_short_code(message.from_num) + ":", message.text)
@@ -126,9 +137,12 @@ def ask_question(message):
 
     Log(reply).save()
 
+
 def answer_question(message):
-    
-    answer_match = re.search(r'surfer\s*answer\s*(\d+)\s*(.*)', message.text)
+
+    Log(message).save()
+
+    answer_match = re.search(r'surfer\s*answer\s*(\d+)\s*(.*)', message.text, re.I)
     if answer_match:
         number_code = answer_match.group(1)
         answer_text = answer_match.group(2)
@@ -156,8 +170,11 @@ def answer_question(message):
         answer_message = Message(from_num=message.to_num, to_num=askers.first().number, text = "ANSWER: " + answer_text)
         Log(answer_message).save()
         message.connection.send(answer_message)
-        push_to_experts(message, "ANSWER:" + answer_text, message.to_num, [message.from_num])
-    Log(message).save()
+        push_to_experts(message, "ANSWER"+number_code+":"+answer_text, message.to_num, [message.from_num])
+        reply = Message(from_num=message.to_num, to_num=message.from_num, text="Your answer has been sent to %s and all the experts." % number_code)
+        Log(reply).save()
+        message.connection.send(reply)
+
 
 def push_to_experts(message, qstn_text, from_num, exceptions=[]):
     """Sends message containing 'text' to all experts except those listed in exceptions"""
@@ -165,9 +182,13 @@ def push_to_experts(message, qstn_text, from_num, exceptions=[]):
     experts = Phone.objects(expert=True,number__nin=exceptions)
     for expert in experts:
         qstn_message = Message(to_num=expert.number, from_num=from_num, text= qstn_text)
-
+ 
         Log(qstn_message).save()
-        message.connection.send(qstn_message)
+        try:
+		message.connection.send(qstn_message)
+        except:
+		print "error sending question %s to %s" % (message, expert.number)
+	time.sleep(2.0)
 
         
 
@@ -181,3 +202,6 @@ def get_short_code(number):
             return shortcode
 
     return number
+        
+def in_bed(text):
+    return re.sub(r"([\W]*)$", r" in bed\1", text)
