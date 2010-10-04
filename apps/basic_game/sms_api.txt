@@ -29,6 +29,8 @@ grove clear
     available only to admins.
     resets player team scores (leaves all players subscribed)
     
+grove tell all MESSAGE 
+or
 grove announce MESSAGE
     looks up MESSAGE as key in MESSAGES dictionary
     gets associated value if present, or MESSAGE otherwise,

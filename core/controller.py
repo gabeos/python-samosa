@@ -23,8 +23,12 @@ class Controller(object):
         
         Arguments:
         msg_set -- the set of messages to test"""
-
+        
+        #self.begin_control()
+        
         for msg in msg_set:
             for test, response in self.reactions:
                 if test(msg):
                     response(msg)
+                    
+        #self.end_control()
