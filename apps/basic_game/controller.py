@@ -2,8 +2,8 @@ from apps.basic_game.models import *
 from util.models import Log
 from apps.basic_game.game_data import GAME
 import apps.basic_game.responses
+from datetime import datetime, timedelta
 import re
-from datetime import datetime
 
 
 #define the app's behavior in the form of test / response pairs
@@ -14,10 +14,18 @@ from datetime import datetime
 #(returning None is also evaluated as False)
 
 #to prevent ghost messages if the server is restarted, ignore any messages that 
-start_time = datetime.now().replace(second=0) 
+start_time = datetime.now() - timedelta(minutes=1)
 
 def unread(message):
     return not Log.objects(m_id=message.id) and message.from_num != message.connection.num and message.datetime >= start_time and not message.is_read
+
+def begin_control(self):
+    print("begin control cycle")
+    ME.connect('basic_game')
+
+def begin_response(self, msg):
+    print("begin response")
+    Log(msg).save()
 
 #anyone can join team admin or team npc, if they're evil.
 def join_request(message):

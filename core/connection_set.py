@@ -7,4 +7,3 @@ class ConnectionSet(list):
 
     def get_messages(self):
         return MessageSet(m for conn in self for m in conn.get_messages())
-        

@@ -3,13 +3,13 @@ CONNECTIONS = (
                  (
                     'doctor.hrothgar@gmail',
                     'pygooglevoice',
-                    {'GV_USER':"doctor.hrothgar@gmail.com",'GV_PASSWORD':'obscurepgh'}
+                    {'GV_USER':"doctor.hrothgar@gmail.com",'GV_PASSWORD':'None'}
                  ),
-                 (
-                    'askory@andrew',
-                    'pygooglevoice',    
-                    {'GV_USER':"askory@andrew.cmu.edu",'GV_PASSWORD':'w33k3nd3r'},
-                 ),
+#                 (
+#                    'askory@andrew',
+#                    'pygooglevoice',    
+#                    {'GV_USER':"askory@andrew.cmu.edu",'GV_PASSWORD':'w33k3nd3r'},
+#                 ),
               )
 
 #Set the interval to ping each connection for new Messages
@@ -20,5 +20,5 @@ CHECK_INTERVAL = (20, 40)
 #Specify apps here, format is (app,[connection1,connection2...])
 #if no connections are listed, all connections will be checked by default
 APPS = (
-            ('weekender'),
+            ('basic_game'),
        )

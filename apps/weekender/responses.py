@@ -47,7 +47,10 @@ def announce(message):
     reply = Message(to_num = message.from_num, from_num = message.to_num, text = "Your announcement has been sent.")
 
     Log(reply).save()
-    message.connection.send(reply)
+    try:
+	    message.connection.send(reply)
+    except:
+	    print "there was an error sending a response to %s" % message.from_num
 
     print "%s sending announcement \"%s\"" % (message.from_num, message.text[15:])
 
@@ -61,10 +64,13 @@ def announce(message):
     for phone in phones:
         announce = Message(to_num = phone.number, from_num = message.to_num, text = text)
         Log(announce).save()
-        message.connection.send(announce)
-        time.sleep(0.5)
+	try:
+        	message.connection.send(announce)
+        	
+	except:
+		print "error in sending announcement: %s to %s" % (message, phone.number)
 
-
+	time.sleep(2.0)
 
 def register_expert(message):
     
@@ -165,6 +171,9 @@ def answer_question(message):
         Log(answer_message).save()
         message.connection.send(answer_message)
         push_to_experts(message, "ANSWER"+number_code+":"+answer_text, message.to_num, [message.from_num])
+        reply = Message(from_num=message.to_num, to_num=message.from_num, text="Your answer has been sent to %s and all the experts." % number_code)
+        Log(reply).save()
+        message.connection.send(reply)
 
 
 def push_to_experts(message, qstn_text, from_num, exceptions=[]):
@@ -173,10 +182,13 @@ def push_to_experts(message, qstn_text, from_num, exceptions=[]):
     experts = Phone.objects(expert=True,number__nin=exceptions)
     for expert in experts:
         qstn_message = Message(to_num=expert.number, from_num=from_num, text= qstn_text)
-
+ 
         Log(qstn_message).save()
-        message.connection.send(qstn_message)
-        time.sleep(0.5)
+        try:
+		message.connection.send(qstn_message)
+        except:
+		print "error sending question %s to %s" % (message, expert.number)
+	time.sleep(2.0)
 
         
 
@@ -190,3 +202,6 @@ def get_short_code(number):
             return shortcode
 
     return number
+        
+def in_bed(text):
+    return re.sub(r"([\W]*)$", r" in bed\1", text)
