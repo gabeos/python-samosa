@@ -23,7 +23,6 @@ class Checker(Thread):
 
     def run(self):
         while not self.done:
-#            self.check()
             try:
                 self.check()
             except Exception:
@@ -35,7 +34,7 @@ class Checker(Thread):
             if isinstance(self.interval,tuple):
                 self.event.wait(randint(self.interval[0],self.interval[0]))
             else:
-                self.event.wait(interval)
+                self.event.wait(self.interval)
 
     def stop(self):
         self.done = True
