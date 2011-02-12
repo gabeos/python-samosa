@@ -1,31 +1,38 @@
-import backends.tropo.util
+from backends.tropo.util import TropoHelper
 from core.message_set import MessageSet
 from core.connection import Connection as SuperConn
 
 class Connection(SuperConn):
-    """stores received messages in MongoDB"""
+    """holds messages from Tropo to be consumed by get_messages.
+       sends messages out through Tropo."""
 
     def get_messages(self):
-        """Retrieves messages from MongoDB"""
-        return self.listener.get_new_messages()
+        """Retrieves messages from the tropo helper"""
+        mmm = self.tropo_helper.get_new_messages()
+        if len(mmm) > 0:
+            print "I got %s"%[m.from_num+":"+m.text for m in mmm]
+        return mmm
 
     def send(self,msg):
-        """Mimic sending a message
-        Send a message to a different MongoDB specified by phone number in msg
-        Also creates outgoing message in sender MongoDB"""
+        """Sends a text message through tropo."""
+        return self.tropo_helper.send_message(msg)
 
-        pass
-
-def __init__(self,cid,**args):
-    """Connection to single MongoDB
-    kwargs:
-        NUMBER = phoneish number
-        reference to db #TODO"""
-
-
-    self.id = cid
-
-    self.num = args['NUMBER']
-    self.backend = 'tropo'
+        
+    def __init__(self,cid,**args):
+        """Connection to Tropo.
+        kwargs:
+            TOKEN  = outgoing tropo authentication token"""
+    
+        self.id = cid
+        self.token = args['TOKEN']
+        self.backend = 'tropo'
+        
+        if 'NUMBER' in args.keys():
+            self.num = args['NUMBER']
+        else:
+            self.num = "hrothgar@tropo.im"
+        
+        self.tropo_helper = TropoHelper(self)
+        self.tropo_helper.start()
 
 

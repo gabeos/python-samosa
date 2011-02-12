@@ -12,7 +12,7 @@ REQUIRED_MSG_ATTRS = (
 OPTIONAL_MSG_ATTRS = (
                 'labels',
                 'is_read',
-                'connection'
+                'connection',
                  )
 
 class Message(object):

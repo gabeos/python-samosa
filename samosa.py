@@ -2,7 +2,7 @@
 from core.connection_set import ConnectionSet
 from core.checker import Checker
 from core.controller import Controller
-from sys import argv
+from sys import argv, exit
 from settings import CONNECTIONS, CHECK_INTERVAL, APPS
 
 def connect():
@@ -36,4 +36,5 @@ if __name__ == "__main__":
     except (KeyboardInterrupt, SystemExit):
         print "\n ** Recieved kill signal, stopping checker. **"
         checker.stop()
-        raise
+        exit(0) #kill the itty server thread too
+        #raise
